@@ -12,6 +12,12 @@ spring:
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: rxq20030705123
+
+  redis:
+    host: localhost
+    #password: 123456
+    port: 6379
+    database: 0
 #   MybatisPlus的配置
 mybatis-plus:
   configuration:
