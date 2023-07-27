@@ -13,9 +13,12 @@ import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.Name;
 import javax.websocket.server.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +56,8 @@ public class SetmealController {
      * @date: 2023/7/15 11:17
      */
     @PostMapping
-    public R<String> addSetmeal(@RequestBody SetmealDto setmealDto) {
+    @CacheEvict(value = "setmealCache", allEntries = true)
+    public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("套餐信息：{}", setmealDto);
 
         setmealService.saveWithDish(setmealDto);
@@ -120,6 +124,8 @@ public class SetmealController {
      */
 
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
+    //删除一个套餐时，将缓存中其他的套餐全部删除掉
     //用集合来接收需要添加@RequetParam注解，或者用Long[]数组来添加
     public R<String> delete(@RequestParam("ids") List<Long> ids) {
       setmealService.removeWithDish(ids);
@@ -154,6 +160,7 @@ public class SetmealController {
      */
 
    @GetMapping("/list")
+   @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
    public R<List<Setmeal>> listR(Setmeal setmeal) {
        //构造查询条件,返回分类信息相同的套餐
        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
